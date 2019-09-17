@@ -29,10 +29,19 @@ class TestAPI():
         assert r.status_code == 200
 
     def test_post_create(self):
-         # var needed to declare the data type used in the requests
-         content_header = {'Content-Type': 'application/json'}
-         # var needed to indicate the info that will be requested
-         data = {'name' : 'test-file', 'contents' : 'hello'}
-         # make post request to'/files/create' end point
-         r = requests.post(self.url+"/files/create", headers=content_header, json=data)
-         assert r.status_code == 201
+        # var needed to declare the data type used in the requests
+        content_header = {'Content-Type': 'application/json'}
+        # var needed to indicate the info that will be requested
+        data = {'name': 'test-file', 'contents': 'hello'}
+        # make post request to'/files/create' end point
+        r = requests.post(self.url + "/files/create", headers=content_header, json=data)
+
+        # check create status code
+        assert r.status_code == 201
+        # check that a POST request is used to create a file
+        assert r.text == "File 'test-file' created."
+
+        file_object = open("test-file", "r")
+        read_content = file_object.read()
+        file_object.close()
+        assert read_content == "hello"
