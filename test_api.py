@@ -10,8 +10,9 @@ class TestAPI():
     # (autouse=True) is passed as a param so that it doesn't need to be passed within the tests
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.url ='http://127.0.0.1:5000'
+        self.url = 'http://127.0.0.1:5000'
 
+    @pytest.fixture(autouse=True)
     def start_server(self):
         # use pexpect to start server in the background - so that running tests aren't blocked
         server = pexpect.spawn("python api.py")
@@ -26,3 +27,12 @@ class TestAPI():
         r = requests.get(self.url)
         # check for success status code
         assert r.status_code == 200
+
+    def test_post_create(self):
+         # var needed to declare the data type used in the requests
+         content_header = {'Content-Type': 'application/json'}
+         # var needed to indicate the info that will be requested
+         data = {'name' : 'test-file', 'contents' : 'hello'}
+         # make post request to'/files/create' end point
+         r = requests.post(self.url+"/files/create", headers=content_header, json=data)
+         assert r.status_code == 201
