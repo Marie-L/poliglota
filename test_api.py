@@ -27,8 +27,8 @@ class TestAPI():
     @pytest.fixture(autouse=True)
     def start_server(self):
         # use pexpect to start server in the background - so that running tests aren't blocked
-        server = pexpect.spawn("python api.py"+self.tmp)
-        server.expect('Running on'+ self.url)
+        server = pexpect.spawn("python api.py "+self.tmp)
+        server.expect('Running on http://127.0.0.1:5000')
         yield server
         # stop the background process
         server.kill(9)
@@ -51,7 +51,7 @@ class TestAPI():
         # check create status code
         assert r.status_code == 201
         # check that a POST request is used to create a file
-        assert r.text == "File 'test-file' created at '"+self.tmp+"'."
+        assert r.text == "File 'test-file' created."
 
         file_object = open(self.tmp+"/test-file", "r")
         read_content = file_object.read()
