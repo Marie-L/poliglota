@@ -1,6 +1,8 @@
 import requests
 import pexpect
 import pytest
+import shutil
+import tempfile
 
 
 # define class
@@ -9,14 +11,24 @@ class TestAPI():
     # declare a new fixture - a pytest mechanism which allows us to declare functions or method which are common to tests within a suite
     # (autouse=True) is passed as a param so that it doesn't need to be passed within the tests
     @pytest.fixture(autouse=True)
-    def setup(self):
+    def setup(self, tmp_dir):
         self.url = 'http://127.0.0.1:5000'
+        self.tmp = tmp_dir
+
+    @pytest.fixture()
+    def tmp_dir(self):
+        # create temporary directory
+        tmp = tempfile.mkdtemp(prefix = "pcrud")
+        # yield sends back value
+        yield tmp
+        # rm temp dir
+        shutil.rmtree(tmp)
 
     @pytest.fixture(autouse=True)
     def start_server(self):
         # use pexpect to start server in the background - so that running tests aren't blocked
-        server = pexpect.spawn("python api.py")
-        server.expect('Running on http://127.0.0.1:5000')
+        server = pexpect.spawn("python api.py"+self.tmp)
+        server.expect('Running on'+ self.url)
         yield server
         # stop the background process
         server.kill(9)
@@ -39,9 +51,9 @@ class TestAPI():
         # check create status code
         assert r.status_code == 201
         # check that a POST request is used to create a file
-        assert r.text == "File 'test-file' created."
+        assert r.text == "File 'test-file' created at '"+self.tmp+"'."
 
-        file_object = open("test-file", "r")
+        file_object = open(self.tmp+"/test-file", "r")
         read_content = file_object.read()
         file_object.close()
         assert read_content == "hello"

@@ -1,7 +1,12 @@
 from flask import Flask, request
+import sys
 
 app = Flask(__name__)
 
+# use sys to fetch first argument from command line when server starts
+app.config['store'] = sys.argv[1]
+# save it to the app's config object
+store = app.config.get('store')
 
 @app.route('/')
 def index():
@@ -12,7 +17,7 @@ def create():
     data = request.get_json()
     name, contents = data['name'], data['contents']
 
-    f = open(name, 'w')
+    f = open(store+'/'+name, 'w')
     f.write(contents)
     f.close()
 
