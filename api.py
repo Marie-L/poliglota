@@ -24,6 +24,14 @@ def create():
     # formatted string, a new resource has been created
     return "File '{}' created.".format(name), 201
 
+# the variable name is passed inside < > in the url, then it's passed through as a param in the def function
+@app.route('/files/read/<filename>')
+def read(filename):
+    f = open(store+'/'+filename, "r")
+    contents = f.read()
+    f.close()
+    return contents
+
 
 app.run(debug=True)
 

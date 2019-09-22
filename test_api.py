@@ -57,3 +57,13 @@ class TestAPI():
         read_content = file_object.read()
         file_object.close()
         assert read_content == "hello"
+
+    def test_get_read(self):
+        expected_contents = "contents of the test file"
+        file_object = open(self.tmp+ '/test-file', "w")
+        file_object.write(expected_contents)
+        file_object.close()
+        r = requests.get(self.url+"/files/read/test-file")
+        assert r.status_code == 200
+        assert r.text == expected_contents
+
