@@ -80,7 +80,7 @@ class TestAPI():
         r = requests.put(self.url + "/files/update/test-file", headers=content_header, json=data)
 
         assert r.status_code == 200
-        assert r.text == "File 'test-file' in '" + self.tmp + "'updated."
+        assert r.text == "File 'test-file' in '" + self.tmp + "' updated."
 
         file_object = open(self.tmp + "/test-file", "r")
         read_content = file_object.read()

@@ -30,9 +30,10 @@ def create():
 # the variable name is passed inside < > in the url, then it's passed through as a param in the def function
 @app.route('/files/read/<filename>')
 def read(filename):
-    f = open(store + '/'+filename, "r")
+    f = open(store+'/'+filename, "r")
     contents = f.read()
     f.close()
+
     return contents
 
 
@@ -44,6 +45,7 @@ def update(filename):
     f = open(store+'/'+filename, "w")
     f.write(contents)
     f.close()
-    return "File '{}' updated.".format(filename)
+
+    return "File '{}' in '{}' updated.".format(filename, store)
 
 app.run(debug=True)
