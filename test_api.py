@@ -78,11 +78,13 @@ class TestAPI():
 
     def test_get_read(self):
         expected_contents = "contents of the test file"
-        # open file (path/url, permissions) - "r" == reading rights
+        # open file (file_path/url, mode/permissions) - "r" == reading rights
         file_object = open(self.tmp + '/test-file', "w")
+        # call .write method to append content
         file_object.write(expected_contents)
         file_object.close()
 
+        # create response object for 'read' endpoint
         r = requests.get(self.url + "/files/read/test-file")
         assert r.status_code == 200
         assert r.text == expected_contents
@@ -109,6 +111,7 @@ class TestAPI():
     def test_delete_delete(self):
          write_file(self.tmp+'/test-file', 'goodbye')
          r = requests.delete(self.url+"/files/delete/test-file")
+
          assert r.status_code == 200
          "File 'test-file-to-delete' deleted from '"+self.tmp+"'."
          assert os.path.exists(self.tmp+'/test-file') == False
