@@ -116,7 +116,7 @@ class TestAPI():
          "File 'test-file-to-delete' deleted from '"+self.tmp+"'."
          assert os.path.exists(self.tmp+'/test-file') == False
 
-# REUSABLE FUNCTIONS -------------------------------------------------------------------------------------------------#
+# REUSABLE FUNCTIONS & VARS -------------------------------------------------------------------------------------------------#
 
 def write_file(filename, contents):
     f = open(filename, "w")
