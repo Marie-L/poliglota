@@ -3,9 +3,16 @@ import pexpect
 import pytest
 import shutil
 import tempfile
+import os
 
 
-# define class
+def write_file(filename, contents):
+    f = open(filename, "w")
+    f.write(contents)
+    f.close()
+    return contents
+
+
 class TestAPI():
 
     # declare a new fixture - a pytest mechanism which allows us to declare functions or method which are common to tests within a suite
@@ -86,3 +93,11 @@ class TestAPI():
         read_content = file_object.read()
         file_object.close()
         assert read_content == expected_new_contents
+
+    def test_delete_delete(self):
+         write_file(self.tmp+'/test-file', 'goodbye')
+         r = requests.delete(self.url+"/files/delete/test-file")
+         assert r.status_code == 200
+         "File 'test-file-to-delete' deleted from '"+self.tmp+"'."
+         assert os.path.exists(self.tmp+'/test-file') == False
+

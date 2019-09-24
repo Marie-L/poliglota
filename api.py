@@ -1,6 +1,6 @@
 from flask import Flask, request
 import sys
-
+import os
 app = Flask(__name__)
 
 # use sys to fetch first argument from command line when server starts
@@ -47,5 +47,10 @@ def update(filename):
     f.close()
 
     return "File '{}' in '{}' updated.".format(filename, store)
+
+@app.route('/files/delete/<filename>', methods=['DELETE'])
+def delete(filename):
+    os.remove(store+'/'+filename)
+    return "File'{}' deleted from '{}'.".format(filename, store)
 
 app.run(debug=True)
