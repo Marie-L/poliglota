@@ -1,32 +1,41 @@
+# allows HTTP requests to be sent
 import requests
+# for spawning child applications - here used to create server
 import pexpect
+# testing framework of choice
 import pytest
+# offers high-level operations on files and collections of files - used here for dir removal
 import shutil
+# creates temporary files and directories
 import tempfile
+# provides functions for interacting with machines os - used here to delete file
 import os
 
-
-def write_file(filename, contents):
-    f = open(filename, "w")
-    f.write(contents)
-    f.close()
-    return contents
+# SETUP ------------------------------------------------------------------------------------------------------------#
 
 
 class TestAPI():
+    """
+    - @pytest.fixture declares a fixture - a pytest mechanism which provides a fixed baseline allows (functions or
+    methods to be declared) and where tests can be repeatedly executed. - fixtures are an alternative to classic
+    xunit-style setup (setup/teardown - setup is used to setup items or state that need to exist for the test to run,
+    teardown - is used to remove the newly created items from setup)
+    - (autouse=True) allows the fixture to run without a test
+    """
 
-    # declare a new fixture - a pytest mechanism which allows us to declare functions or method which are common to tests within a suite
-    # (autouse=True) is passed as a param so that it doesn't need to be passed within the tests
     @pytest.fixture(autouse=True)
+    # self is passed in to provide access to super class, the class must always be referenced by using self param
+    # tmp_dir is passed in to be assigned to self.tmp
     def setup(self, tmp_dir):
+        # root
         self.url = 'http://127.0.0.1:5000'
         self.tmp = tmp_dir
 
     @pytest.fixture()
     def tmp_dir(self):
-        # create temporary directory
+        # create temporary directory, call .mkdtemp method
         tmp = tempfile.mkdtemp(prefix="pcrud")
-        # yield sends back value
+        # yield - pytest statement used instead of `return` to send back value
         yield tmp
         # rm temp dir
         shutil.rmtree(tmp)
@@ -40,7 +49,8 @@ class TestAPI():
         # stop the background process
         server.kill(9)
 
-    # define function, param self refers to the class itself
+# TEST ------------------------------------------------------------------------------------------------------------#
+
     def test_index(self):
         # get request to index endpoint (local server:port)
         r = requests.get(self.url)
@@ -48,18 +58,19 @@ class TestAPI():
         assert r.status_code == 200
 
     def test_post_create(self):
-        # var needed to declare the data type used in the requests
+        # server response header - var needed to declare the data type used in the requests
         content_header = {'Content-Type': 'application/json'}
         # var needed to indicate the info that will be requested
         data = {'name': 'test-file', 'contents': 'hello'}
-        # make post request to'/files/create' end point
+        # create response object `r` which makes POST request to'/files/create' end point
         r = requests.post(self.url + "/files/create", headers=content_header, json=data)
 
-        # check create status code
+        # call .status_code method to check for 201 created status code
         assert r.status_code == 201
-        # check that a POST request is used to create a file
+        # call .text method to read results of servers response and check that a POST request was used to create a file
         assert r.text == "File 'test-file' created."
 
+        # open file (path/url, permissions) - "r" == reading rights
         file_object = open(self.tmp + "/test-file", "r")
         read_content = file_object.read()
         file_object.close()
@@ -67,6 +78,7 @@ class TestAPI():
 
     def test_get_read(self):
         expected_contents = "contents of the test file"
+        # open file (path/url, permissions) - "r" == reading rights
         file_object = open(self.tmp + '/test-file', "w")
         file_object.write(expected_contents)
         file_object.close()
@@ -101,3 +113,10 @@ class TestAPI():
          "File 'test-file-to-delete' deleted from '"+self.tmp+"'."
          assert os.path.exists(self.tmp+'/test-file') == False
 
+# REUSABLE FUNCTIONS -------------------------------------------------------------------------------------------------#
+
+def write_file(filename, contents):
+    f = open(filename, "w")
+    f.write(contents)
+    f.close()
+    return contents
