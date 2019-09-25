@@ -76,24 +76,18 @@ class TestAPI():
         file_object.close()
         assert read_content == "hello"
 
+
     def test_get_read(self):
         expected_contents = "contents of the test file"
-        # open file (file_path/url, mode/permissions) - "r" == reading rights
-        file_object = open(self.tmp + '/test-file', "w")
-        # call .write method to append content
-        file_object.write(expected_contents)
-        file_object.close()
-
+        write_file(self.tmp + '/test-file-to-read', expected_contents)
         # create response object for 'read' endpoint
-        r = requests.get(self.url + "/files/read/test-file")
+        r = requests.get(self.url + "/files/read/test-file-to-read")
+
         assert r.status_code == 200
         assert r.text == expected_contents
 
     def test_put_update(self):
-        f = open(self.tmp + '/test-file', "w")
-        f.write('boring old contents')
-        f.close()
-
+        write_file(self.tmp + '/test-file-to-update', 'boring old contents')
         expected_new_contents = 'new shiny updated contents'
 
         content_header = {'Content-Type': 'application/json'}
@@ -116,10 +110,20 @@ class TestAPI():
          "File 'test-file-to-delete' deleted from '"+self.tmp+"'."
          assert os.path.exists(self.tmp+'/test-file') == False
 
-# REUSABLE FUNCTIONS & VARS -------------------------------------------------------------------------------------------------#
+# HELPER FUNCTIONS -------------------------------------------------------------------------------------------------#
 
 def write_file(filename, contents):
+    # open file (file_path/url, mode/permissions) - "w" == writing rights
     f = open(filename, "w")
+    # call .write method to append content
+
     f.write(contents)
+    f.close()
+    return contents
+
+def read_file(filename):
+    # open file (file_path/url, mode/permissions) - "r" == reading rights
+    f = open(filename, "r")
+    contents = f.read()
     f.close()
     return contents
